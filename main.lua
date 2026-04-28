@@ -427,7 +427,7 @@ function love.load()
     menuElements.start:setFilter("nearest", "nearest")
     menuElements.title = love.graphics.newImage("title.png")
     menuElements.title:setFilter("nearest", "nearest")
-    menuElements.titleX = love.graphics.getWidth()/2 - (69*5)/2
+    menuElements.titleX = love.graphics.getWidth()/2 - (69*5)/2 
     menuElements.titleY = 100
     menuElements.startX = love.graphics.getWidth()/2 - (35*4)/2
     menuElements.startY = 400
