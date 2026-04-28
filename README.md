@@ -7,6 +7,9 @@ Aphid attack is a top down shooter where you have to shoot down aphids to protec
 # Tech stack
 This was built using love2D and lua, and it helped me learn a ton about the lua and love api! 
 
+# What i actually learned!
+This was mainly a project to get me to learn lua, so what better way to do so than make a game! It helped me learn both the lua api and the love api, and it also taught me core game mechanics such as radial collision and spawning mechanics! 
+
 # Controls
 Its fairly simple! WASD to move, Space/Left mouse button for shooting, and you collect powerups by going over them! UI elements are also controlled through mouse!
 
