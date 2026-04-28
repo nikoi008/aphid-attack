@@ -7,7 +7,6 @@ local dyingAphids = {}
 local powerups = {}
 local powerup = {}
 
-
 local health = 3
 local maxHealth = 3
 local aphidsKilled = 0
@@ -21,13 +20,17 @@ local flashInterval = 0.15
 local showLadybug = true
 
 
-local heartDropChance = 1/50
-local fertDropChance = 1/25
+local heartDropChance = 1/40
+local fertDropChance = 1/20
 local baseFireRate = 0.25
 local fireRate = baseFireRate
 local fertActive = false
 local fertTimer = 0
 local fertDuration = 5
+
+local menu = true
+local endScreen = false
+local score = 0
 
 function initLadybug()
     ladybug.spriteShoot = love.graphics.newImage("ladybug2.png")
@@ -202,6 +205,10 @@ function ladybugCollision()
         local ah = aphid.sprite:getHeight() * 5
         if CheckCollision(ladybug.x - lw/2, ladybug.y - lh/2, lw, lh,aphids[i].x - aw/2, aphids[i].y - ah/2, aw, ah) then
             health = health - 1
+            if health <= 0 then
+                endScreen = true
+                score = aphidsKilled * math.floor(timeElapsed)
+            end
             invincible = true
             invincibleTimer = invincibleDuration
             flashTimer = 0
@@ -382,44 +389,7 @@ function drawUI()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function love.load()
-    addAphid(200, 200)
-    addAphid(400, 400)
-    initLadybug()
 
-    aphid.sprite = love.graphics.newImage("aphid.png") 
-    aphid.sprite:setFilter("nearest", "nearest")
-    bullet.sprite = love.graphics.newImage("bullet.png")
-    bullet.sprite:setFilter("nearest", "nearest")
-    powerup.heart = love.graphics.newImage("heart.png")
-    powerup.heart:setFilter("nearest", "nearest")
-    powerup.fert = love.graphics.newImage("fertiliser.png")
-    powerup.fert:setFilter("nearest", "nearest")
-end
-
-function love.update(dt)
-    timeElapsed = timeElapsed + dt
-
-    ladybugMovement(dt)
-    ladybugRotation(dt)
-    ladybugShooting(dt)
-
-    spawnTimer = spawnTimer + dt
-    if spawnTimer >= 1 then
-        spawnAphidWave(difficulty)
-        spawnTimer = 0 
-    end
-
-    aphidsFaceLadyBug(dt) 
-    aphidsMoveTowardsLadybug(dt)
-    ladybugCollision()
-    aphidCollision()
-    updateBullets(dt)
-    updateDyingAphids(dt)
-    updateInvincibility(dt)
-    updatePowerups(dt)
-    updateFert(dt)
-end
 
 function drawBullets()
     love.graphics.setColor(1, 1, 1, 1)
@@ -437,15 +407,129 @@ function drawLadybug()
     love.graphics.setShader()
     love.graphics.setColor(1, 1, 1, 1)
 end
+local bobTimer = 0
+menuElements = {}
+function love.load()
+    initLadybug()
+    menuElements.evaluation = love.graphics.newImage("Evauation.png")
+    menuElements.evaluation:setFilter("nearest", "nearest")
+    menuElements.playAgain = love.graphics.newImage("playAgain.png")
+    menuElements.playAgain:setFilter("nearest", "nearest")
+    aphid.sprite = love.graphics.newImage("aphid.png") 
+    aphid.sprite:setFilter("nearest", "nearest")
+    bullet.sprite = love.graphics.newImage("bullet.png")
+    bullet.sprite:setFilter("nearest", "nearest")
+    powerup.heart = love.graphics.newImage("heart.png")
+    powerup.heart:setFilter("nearest", "nearest")
+    powerup.fert = love.graphics.newImage("fertiliser.png")
+    powerup.fert:setFilter("nearest", "nearest")
+    menuElements.start = love.graphics.newImage("start.png")
+    menuElements.start:setFilter("nearest", "nearest")
+    menuElements.title = love.graphics.newImage("title.png")
+    menuElements.title:setFilter("nearest", "nearest")
+    menuElements.titleX = love.graphics.getWidth()/2 - (69*5)/2
+    menuElements.titleY = 100
+    menuElements.startX = love.graphics.getWidth()/2 - (35*4)/2
+    menuElements.startY = 400
+end
 
 
+function love.update(dt)
+    if menu then
+        bobTimer = bobTimer + dt
+        if love.mouse.isDown(1) then menu = false end
+    end
 
+    if not menu and not endScreen then
+        timeElapsed = timeElapsed + dt
+        ladybugMovement(dt)
+        ladybugRotation(dt)
+        ladybugShooting(dt)
+        spawnTimer = spawnTimer + dt
+        if spawnTimer >= 1 then
+            spawnAphidWave(difficulty)
+            spawnTimer = 0
+        end
+        aphidsFaceLadyBug(dt)
+        aphidsMoveTowardsLadybug(dt)
+        ladybugCollision()
+        aphidCollision()
+        updateBullets(dt)
+        updateDyingAphids(dt)
+        updateInvincibility(dt)
+        updatePowerups(dt)
+        updateFert(dt)
+    end
+end
+
+function drawUIElements()
+    love.graphics.setColor(1, 1, 1, 1)
+    local bob = math.sin(bobTimer * 2) * 5
+    love.graphics.draw(menuElements.title, menuElements.titleX, menuElements.titleY + bob, 0, 5, 5)
+    love.graphics.draw(menuElements.start, menuElements.startX, menuElements.startY, 0, 4,4)
+end
+
+function reset()
+    health = maxHealth
+    aphidsKilled = 0
+    timeElapsed = 0
+    score = 0
+    aphids = {}
+    bullets = {}
+    dyingAphids = {}
+    powerups = {}
+    spawnTimer = 0
+    fertActive = false
+    fireRate = baseFireRate
+    invincible = false
+    showLadybug = true
+    ladybug.x = 100
+    ladybug.y = 200
+    ladybug.rotationRadians = 0
+    endScreen = false
+end
+function drawEndScreen()
+    local screenWidth = love.graphics.getWidth()
+    local screenHeight = love.graphics.getHeight()
+    local scale = 5
+
+    local letterH = 7
+    local letterIndex
+    if score >= 2000 then     letterIndex = 0  
+    elseif score >= 1500 then letterIndex = 1  
+    elseif score >= 1000 then letterIndex = 2  
+    elseif score >= 700  then letterIndex = 3  
+    elseif score >= 500  then letterIndex = 4  
+    else                      letterIndex = 5  
+    end
+    if love.mouse.isDown(1) then reset() end
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(love.graphics.newFont(32))
+    local label = "GAME OVER"
+    love.graphics.print(label, screenWidth/2 - love.graphics.getFont():getWidth(label)/2, screenHeight/2 - 120)
+
+
+    local quad = love.graphics.newQuad(0, letterIndex * letterH, 6, letterH,
+    menuElements.evaluation:getWidth(), menuElements.evaluation:getHeight())
+    love.graphics.draw(menuElements.evaluation, quad, screenWidth/2 - (6*scale)/2, screenHeight/2 - 20, 0, scale, scale)
+
+    
+    local playAgainWidth = 29 * scale
+    local playAgainHeight = 20 * scale
+    love.graphics.draw(menuElements.playAgain, screenWidth/2 - playAgainWidth/2, screenHeight/2 + 80, 0, scale, scale)
+end
 function love.draw()
     love.graphics.setBackgroundColor(55/255, 148/255, 110/255)
-    drawAphids()
-    drawDyingAphids()
-    drawBullets()
-    drawPowerups()
-    drawLadybug()
-    drawUI()
-end
+    if menu then
+        drawUIElements()
+    elseif endScreen then
+        drawEndScreen()
+    else
+        drawAphids()
+        drawDyingAphids()
+        drawBullets()
+        drawPowerups()
+        drawLadybug()
+        drawUI()
+    end
+end      
