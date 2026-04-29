@@ -433,6 +433,12 @@ function love.load()
     menuElements.startY = 400
 end
 
+function love.mousepressed(x, y, button, istouch)
+    if endScreen and button == 1 then
+        reset()
+    end
+        
+end
 
 function love.update(dt)
     if menu then
@@ -502,7 +508,6 @@ function drawEndScreen()
     elseif score >= 500  then letterIndex = 4  
     else                      letterIndex = 5  
     end
-    if love.mouse.isDown(1) then reset() end
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setFont(love.graphics.newFont(32))
     local label = "GAME OVER"
