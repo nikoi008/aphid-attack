@@ -370,7 +370,6 @@ function drawUI()
     local secs = math.floor(timeElapsed % 60)
     local timeStr = string.format("%02d:%02d", mins, secs)
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setFont(love.graphics.newFont(20))
     local textW = love.graphics.getFont():getWidth(timeStr)
     love.graphics.print(timeStr, sw/2 - textW/2, topY)
 
@@ -382,7 +381,7 @@ function drawUI()
     
     if fertActive then
         love.graphics.setColor(0.4, 1, 0.4, 1)
-        love.graphics.setFont(love.graphics.newFont(14))
+     --   love.graphics.setFont(love.graphics.newFont(14))
         love.graphics.print(string.format("%.1fs", fertTimer), padding, topY + iconH + 6)
     end
 
@@ -509,9 +508,8 @@ function drawEndScreen()
     else                      letterIndex = 5  
     end
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setFont(love.graphics.newFont(32))
     local label = "GAME OVER"
-    love.graphics.print(label, screenWidth/2 - love.graphics.getFont():getWidth(label)/2, screenHeight/2 - 120)
+    love.graphics.print(label, screenWidth/2 - (love.graphics.getFont():getWidth(label)/2) * 5, screenHeight/2 - 120,0,5,5)
 
 
     local quad = love.graphics.newQuad(0, letterIndex * letterH, 6, letterH,
